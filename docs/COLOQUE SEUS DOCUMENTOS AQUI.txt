@@ -1,0 +1,5 @@
+Este é um documento de exemplo.
+Exclua este arquivo e adicione seus próprios documentos nesta pasta.
+
+O modelo é capaz de ler documentos pdf, markdown, html, txt, entre outros.
+Verifique a lista completa na documentação oficial do LangChain.
