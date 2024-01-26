@@ -76,3 +76,25 @@ class RAG():
     
     def __set_chat_history(self, max_token_limit: int = 3097):
         return ConversationTokenBufferMemory(llm=self.__model, max_token_limit=max_token_limit, return_messages=True)
+    
+
+    # PUBLIC METHODS #
+    def ask(self, question: str) -> str:
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "Você é um assistente responsável por responder perguntas sobre documentos. Responda a pergunta do usuário com um nível de detalhes razoável e baseando-se no(s) seguinte(s) documento(s) de contexto:\n\n{context}"),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("user", "{input}"),
+        ])
+       
+        output_parser = StrOutputParser()
+        chain = prompt | self.__model | output_parser
+        answer = chain.invoke({
+            "input": question,
+            "chat_history": self.__chat_history.load_memory_variables({})['history'],
+            "context": self.__retriever.get_relevant_documents(question)
+        })
+
+        # Atualização do histórico de conversa
+        self.__chat_history.save_context({"input": question}, {"output": answer})
+       
+        return answer
